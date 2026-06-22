@@ -7,6 +7,7 @@
 .env
 .env.backup
 .env.production
+.env.docker
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -16,4 +17,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/.omc
 storage/app/print-jobs/
+composer.lock

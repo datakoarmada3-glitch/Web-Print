@@ -1,7 +1,0 @@
-{
-  "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"cd \\\"/c/Users/rinom/OneDrive - Office 365 Original/Desktop/PROJECT PERS/Web Printer\\\" && docker compose exec worker bash -c 'CUPS_SERVER=cups:631/version=1.1 lpstat -r' && docker compose e...",
-  "error": "Exit code 1\nscheduler is running\nlpstat: Invalid destination name in list \"canon_ir2625\".",
-  "timestamp": "2026-06-22T06:49:51.244Z",
-  "retry_count": 2
-}
