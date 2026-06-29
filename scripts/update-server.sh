@@ -23,7 +23,8 @@ echo "[1/7] Pull latest code"
 sudo -u www-data git -C "${APP_DIR}" pull origin main
 
 echo "[2/7] Install PHP dependencies"
-sudo -u www-data composer install --working-dir="${APP_DIR}" --no-dev --optimize-autoloader
+sudo -u www-data composer install --working-dir="${APP_DIR}" --no-dev --optimize-autoloader --prefer-source || \
+sudo -u www-data composer install --working-dir="${APP_DIR}" --no-dev --optimize-autoloader --prefer-dist
 
 echo "[3/7] Ensure runtime directories"
 mkdir -p "${APP_DIR}/bootstrap/cache"

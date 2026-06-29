@@ -72,7 +72,9 @@ fi
 chown -R www-data:www-data "${APP_DIR}"
 
 echo "[5/12] Install PHP dependencies"
-sudo -u www-data composer install --working-dir="${APP_DIR}" --no-dev --optimize-autoloader
+sudo -u www-data composer config --global -- disable-tls false 2>/dev/null || true
+sudo -u www-data composer install --working-dir="${APP_DIR}" --no-dev --optimize-autoloader --prefer-source || \
+sudo -u www-data composer install --working-dir="${APP_DIR}" --no-dev --optimize-autoloader --prefer-dist
 
 echo "[6/12] Create Laravel runtime directories"
 mkdir -p "${APP_DIR}/bootstrap/cache"
