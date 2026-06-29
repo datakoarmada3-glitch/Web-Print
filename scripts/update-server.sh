@@ -20,6 +20,8 @@ if [[ ! -d "${APP_DIR}/.git" ]]; then
 fi
 
 echo "[1/7] Pull latest code"
+git config --global --add safe.directory "${APP_DIR}" || true
+sudo -u www-data git config --global --add safe.directory "${APP_DIR}" || true
 sudo -u www-data git -C "${APP_DIR}" pull origin main
 
 echo "[2/7] Install PHP dependencies"

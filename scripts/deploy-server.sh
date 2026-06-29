@@ -62,6 +62,8 @@ SQL
 
 echo "[4/12] Clone or refresh repository"
 mkdir -p /var/www
+git config --global --add safe.directory "${APP_DIR}" || true
+sudo -u www-data git config --global --add safe.directory "${APP_DIR}" || true
 if [[ -d "${APP_DIR}/.git" ]]; then
   git -C "${APP_DIR}" fetch origin
   git -C "${APP_DIR}" reset --hard origin/main
