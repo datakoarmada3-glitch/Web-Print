@@ -6,7 +6,7 @@ return [
     'env' => env('APP_ENV', 'production'),
     'debug' => (bool) env('APP_DEBUG', false),
     'url' => env('APP_URL', 'http://localhost'),
-    'timezone' => 'Asia/Jakarta',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Jayapura'),
     'locale' => 'id',
     'fallback_locale' => 'en',
     'faker_locale' => 'id_ID',

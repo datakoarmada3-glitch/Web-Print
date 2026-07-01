@@ -8,6 +8,7 @@ set -euo pipefail
 #   APP_DIR=/var/www/web-printer
 #   REPO_URL=https://github.com/datakoarmada3-glitch/Web-Print.git
 #   APP_URL=http://192.168.1.50
+#   APP_TIMEZONE=Asia/Jayapura
 #   DB_NAME=web_printer
 #   DB_USER=web_printer
 #   DB_PASSWORD='StrongPassword123!'
@@ -18,6 +19,7 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-/var/www/web-printer}"
 REPO_URL="${REPO_URL:-https://github.com/datakoarmada3-glitch/Web-Print.git}"
 APP_URL="${APP_URL:-http://localhost}"
+APP_TIMEZONE="${APP_TIMEZONE:-Asia/Jayapura}"
 DB_NAME="${DB_NAME:-web_printer}"
 DB_USER="${DB_USER:-web_printer}"
 DB_PASSWORD="${DB_PASSWORD:-ChangeMe123!}"
@@ -108,6 +110,8 @@ replacements = {
     'APP_ENV=local': 'APP_ENV=production',
     'APP_DEBUG=true': 'APP_DEBUG=false',
     'APP_URL=http://localhost': 'APP_URL=${APP_URL}',
+    'APP_TIMEZONE=Asia/Jakarta': 'APP_TIMEZONE=${APP_TIMEZONE}',
+    'APP_TIMEZONE=Asia/Jayapura': 'APP_TIMEZONE=${APP_TIMEZONE}',
     'DB_HOST=127.0.0.1': 'DB_HOST=127.0.0.1',
     'DB_PORT=3306': 'DB_PORT=3306',
     'DB_DATABASE=web_printer': 'DB_DATABASE=${DB_NAME}',
@@ -126,6 +130,8 @@ replacements = {
 }
 for old, new in replacements.items():
     text = text.replace(old, new)
+if 'APP_TIMEZONE=' not in text:
+    text = text.replace('APP_URL=${APP_URL}', 'APP_URL=${APP_URL}\nAPP_TIMEZONE=${APP_TIMEZONE}')
 path.write_text(text)
 PY
 
