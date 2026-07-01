@@ -12,7 +12,8 @@ set -euo pipefail
 #   DB_USER=web_printer
 #   DB_PASSWORD='StrongPassword123!'
 #   PRINTER_IP=10.3.105.224
-#   CUPS_PRINTER_NAME=canon_ir2625
+#   CUPS_PRINTER_NAME=Canon-iR2625-2630-UFR-II
+#   CUPS_PRINTER_URI=lpd://10.3.105.224
 
 APP_DIR="${APP_DIR:-/var/www/web-printer}"
 REPO_URL="${REPO_URL:-https://github.com/datakoarmada3-glitch/Web-Print.git}"
@@ -21,7 +22,8 @@ DB_NAME="${DB_NAME:-web_printer}"
 DB_USER="${DB_USER:-web_printer}"
 DB_PASSWORD="${DB_PASSWORD:-ChangeMe123!}"
 PRINTER_IP="${PRINTER_IP:-10.3.105.224}"
-CUPS_PRINTER_NAME="${CUPS_PRINTER_NAME:-canon_ir2625}"
+CUPS_PRINTER_NAME="${CUPS_PRINTER_NAME:-Canon-iR2625-2630-UFR-II}"
+CUPS_PRINTER_URI="${CUPS_PRINTER_URI:-lpd://${PRINTER_IP}}"
 PHP_VERSION="${PHP_VERSION:-8.3}"
 
 if [[ "$EUID" -ne 0 ]]; then
@@ -116,7 +118,10 @@ replacements = {
     'CACHE_STORE=redis': 'CACHE_STORE=redis',
     'SESSION_DRIVER=redis': 'SESSION_DRIVER=redis',
     'CUPS_PRINTER_NAME=canon_ir2625': 'CUPS_PRINTER_NAME=${CUPS_PRINTER_NAME}',
-    'CUPS_PRINTER_URI=ipp://10.3.105.224/ipp/print': 'CUPS_PRINTER_URI=ipp://${PRINTER_IP}/ipp/print',
+    'CUPS_PRINTER_NAME=Canon-iR2625-2630-UFR-II': 'CUPS_PRINTER_NAME=${CUPS_PRINTER_NAME}',
+    'CUPS_PRINTER_URI=ipp://10.3.105.224/ipp/print': 'CUPS_PRINTER_URI=${CUPS_PRINTER_URI}',
+    'CUPS_PRINTER_URI=socket://10.3.105.224:9100': 'CUPS_PRINTER_URI=${CUPS_PRINTER_URI}',
+    'CUPS_PRINTER_URI=lpd://10.3.105.224': 'CUPS_PRINTER_URI=${CUPS_PRINTER_URI}',
     'PRINTER_IP=10.3.105.224': 'PRINTER_IP=${PRINTER_IP}',
 }
 for old, new in replacements.items():
@@ -138,7 +143,7 @@ sudo -u www-data php "${APP_DIR}/artisan" view:cache
 echo "[9/12] Configure CUPS printer"
 usermod -aG lpadmin www-data || true
 if ! lpstat -p "${CUPS_PRINTER_NAME}" >/dev/null 2>&1; then
-  lpadmin -p "${CUPS_PRINTER_NAME}" -E -v "ipp://${PRINTER_IP}/ipp/print" -m everywhere -D "Canon iR2625" -L "Office Printer" || true
+  lpadmin -p "${CUPS_PRINTER_NAME}" -E -v "${CUPS_PRINTER_URI}" -m everywhere -D "Canon iR2625" -L "Office Printer" || true
 fi
 lpadmin -d "${CUPS_PRINTER_NAME}" || true
 cupsaccept "${CUPS_PRINTER_NAME}" || true

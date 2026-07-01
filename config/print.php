@@ -6,8 +6,8 @@ return [
     | CUPS Printer Configuration
     |--------------------------------------------------------------------------
     */
-    'cups_printer_name' => env('CUPS_PRINTER_NAME', 'canon_ir2625'),
-    'cups_printer_uri' => env('CUPS_PRINTER_URI', 'socket://10.3.105.224:9100'),
+    'cups_printer_name' => env('CUPS_PRINTER_NAME', 'Canon-iR2625-2630-UFR-II'),
+    'cups_printer_uri' => env('CUPS_PRINTER_URI', 'lpd://10.3.105.224'),
     'printer_ip' => env('PRINTER_IP', '10.3.105.224'),
 
     /*

@@ -4,8 +4,8 @@
 
 set -e
 
-PRINTER_NAME="canon_ir2625"
-PRINTER_URI="ipp://10.3.105.224/ipp/print"
+PRINTER_NAME="Canon-iR2625-2630-UFR-II"
+PRINTER_URI="lpd://10.3.105.224"
 PRINTER_LOCATION="Ruang Kerja Utama"
 PRINTER_DESC="Canon iR2625"
 
