@@ -13,8 +13,8 @@ class PrinterSeeder extends Seeder
             ['cups_name' => 'canon_ir2625'],
             [
                 'name' => 'Canon iR2625',
-                'driver' => 'CUPS-PDF/IPP',
-                'connection_uri' => 'ipp://10.3.105.224/ipp/print',
+                'driver' => 'Canon UFR II / RAW Socket',
+                'connection_uri' => 'socket://10.3.105.224:9100',
                 'ip_address' => '10.3.105.224',
                 'location' => 'Ruang Kerja Utama',
                 'status' => 'unknown',

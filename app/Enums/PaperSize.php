@@ -13,7 +13,7 @@ enum PaperSize: string
         return match ($this) {
             self::A4 => 'A4',
             self::Legal => 'Legal',
-            self::F4 => 'Legal', // F4 mapped to Legal in CUPS
+            self::F4 => 'F4A', // Canon iR2625 UFR II uses F4A for Folio/F4
         };
     }
 

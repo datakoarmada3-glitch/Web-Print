@@ -7,7 +7,7 @@ return [
     |--------------------------------------------------------------------------
     */
     'cups_printer_name' => env('CUPS_PRINTER_NAME', 'canon_ir2625'),
-    'cups_printer_uri' => env('CUPS_PRINTER_URI', 'ipp://10.3.105.224/ipp/print'),
+    'cups_printer_uri' => env('CUPS_PRINTER_URI', 'socket://10.3.105.224:9100'),
     'printer_ip' => env('PRINTER_IP', '10.3.105.224'),
 
     /*
@@ -58,7 +58,7 @@ return [
     'paper_sizes' => [
         'A4' => 'A4',
         'Legal' => 'Legal',
-        'F4' => 'Legal', // F4 mapped to Legal in CUPS
+        'F4' => 'F4A', // Canon iR2625 UFR II uses F4A for Folio
     ],
 
     /*

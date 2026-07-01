@@ -19,7 +19,7 @@ class CupsService
             'lp',
             '-d', $printer->cups_name,
             '-n', (string) $printJob->copies,
-            '-o', 'media=' . $printJob->paper_size->cupsMedia(),
+            '-o', 'PageSize=' . $printJob->paper_size->cupsMedia(),
             '-o', 'orientation-requested=' . $printJob->orientation->cupsCode(),
             '-o', 'sides=' . $printJob->duplex->cupsSides(),
             '-o', 'ColorModel=' . $printJob->color_mode->cupsColorModel(),
