@@ -16,6 +16,7 @@
                         <td><span class="badge badge-{{ match($printer->status) { 'online','idle'=>'success','printing'=>'info','error'=>'danger','paused'=>'warning',default=>'secondary' } }}">{{ $printer->statusLabel() }}</span></td>
                         <td>{{ $printer->is_default ? '✓' : '—' }}</td>
                         <td class="text-end">
+                            <a href="{{ route('admin.printers.health', $printer) }}" class="btn btn-primary btn-sm">Health</a>
                             <a href="{{ route('admin.printers.edit', $printer) }}" class="btn btn-ghost btn-sm">Edit</a>
                             <form method="POST" action="{{ route('admin.printers.check-status', $printer) }}" class="d-inline">@csrf<button class="btn btn-primary btn-sm">Cek</button></form>
                         </td>

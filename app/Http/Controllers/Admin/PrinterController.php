@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Printer;
 use App\Services\CupsService;
+use App\Services\SnmpPrinterService;
 use Illuminate\Http\Request;
 
 class PrinterController extends Controller
@@ -48,5 +49,12 @@ class PrinterController extends Controller
         $printer->update(['status' => $status]);
 
         return back()->with('success', "Status printer: {$status}");
+    }
+
+    public function health(Printer $printer, SnmpPrinterService $snmpService)
+    {
+        $info = $snmpService->getStatus($printer);
+
+        return view('admin.printers.health', compact('printer', 'info'));
     }
 }

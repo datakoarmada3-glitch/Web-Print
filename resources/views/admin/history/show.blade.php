@@ -35,7 +35,11 @@
                     <div class="alert alert-danger mt-3">{{ $printJob->error_message }}</div>
                 @endif
             </div>
-            <div class="card-footer flex gap-2">
+            <div class="card-footer flex gap-2" style="flex-wrap:wrap">
+                @if($printJob->converted_pdf_path || strtolower($printJob->file_type) === 'pdf')
+                    <a href="{{ route('print-jobs.preview', $printJob) }}" target="_blank" class="btn btn-primary btn-sm">📄 Preview PDF</a>
+                    <a href="{{ route('print-jobs.download', $printJob) }}" class="btn btn-ghost btn-sm">⬇ Download PDF</a>
+                @endif
                 @if($printJob->isCancellable())
                     <form method="POST" action="{{ route('admin.queue.cancel', $printJob) }}" onsubmit="return confirm('Batalkan?')">@csrf<button class="btn btn-danger btn-sm">Cancel</button></form>
                 @endif

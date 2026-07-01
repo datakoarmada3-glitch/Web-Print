@@ -40,7 +40,12 @@ apt install -y software-properties-common curl wget unzip git ca-certificates gn
   php${PHP_VERSION}-curl php${PHP_VERSION}-xml php${PHP_VERSION}-bcmath php${PHP_VERSION}-intl \
   php${PHP_VERSION}-imagick php${PHP_VERSION}-readline \
   libreoffice-core libreoffice-writer libreoffice-calc libreoffice-impress \
-  poppler-utils img2pdf imagemagick
+  poppler-utils img2pdf imagemagick ghostscript enscript snmp
+
+# Optional fonts improve Office-to-PDF fidelity. Continue if Microsoft font package is unavailable.
+apt install -y fonts-crosextra-carlito fonts-crosextra-caladea fonts-liberation || true
+apt install -y ttf-mscorefonts-installer || true
+fc-cache -f -v || true
 
 systemctl enable --now nginx mariadb redis-server cups supervisor php${PHP_VERSION}-fpm
 

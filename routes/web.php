@@ -36,6 +36,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/print-jobs/create', [PrintJobController::class, 'create'])->name('print-jobs.create');
     Route::post('/print-jobs', [PrintJobController::class, 'store'])->name('print-jobs.store');
     Route::get('/print-jobs/{printJob}', [PrintJobController::class, 'show'])->name('print-jobs.show');
+    Route::get('/print-jobs/{printJob}/preview', [PrintJobController::class, 'preview'])->name('print-jobs.preview');
+    Route::get('/print-jobs/{printJob}/download', [PrintJobController::class, 'download'])->name('print-jobs.download');
     Route::post('/print-jobs/{printJob}/cancel', [PrintJobController::class, 'cancel'])->name('print-jobs.cancel');
 
     // Admin routes
@@ -63,6 +65,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('/printers/{printer}/edit', [PrinterController::class, 'edit'])->name('printers.edit');
         Route::put('/printers/{printer}', [PrinterController::class, 'update'])->name('printers.update');
         Route::post('/printers/{printer}/check-status', [PrinterController::class, 'checkStatus'])->name('printers.check-status');
+        Route::get('/printers/{printer}/health', [PrinterController::class, 'health'])->name('printers.health');
 
         // Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');

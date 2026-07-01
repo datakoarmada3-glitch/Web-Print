@@ -33,14 +33,22 @@
                     <div class="alert alert-danger mt-3">⚠️ {{ $printJob->error_message }}</div>
                 @endif
             </div>
-            @if($printJob->isCancellable())
-                <div class="card-footer" style="text-align:right">
-                    <form method="POST" action="{{ route('print-jobs.cancel', $printJob) }}" onsubmit="return confirm('Batalkan print job ini?')">
-                        @csrf
-                        <button type="submit" class="btn btn-danger btn-sm">Batalkan Job</button>
-                    </form>
+            <div class="card-footer flex gap-2" style="justify-content:space-between;flex-wrap:wrap">
+                <div class="flex gap-2">
+                    @if($printJob->converted_pdf_path || strtolower($printJob->file_type) === 'pdf')
+                        <a href="{{ route('print-jobs.preview', $printJob) }}" target="_blank" class="btn btn-primary btn-sm">📄 Preview PDF</a>
+                        <a href="{{ route('print-jobs.download', $printJob) }}" class="btn btn-ghost btn-sm">⬇ Download PDF</a>
+                    @endif
                 </div>
-            @endif
+                <div>
+                    @if($printJob->isCancellable())
+                        <form method="POST" action="{{ route('print-jobs.cancel', $printJob) }}" onsubmit="return confirm('Batalkan print job ini?')" style="display:inline">
+                            @csrf
+                            <button type="submit" class="btn btn-danger btn-sm">Batalkan Job</button>
+                        </form>
+                    @endif
+                </div>
+            </div>
         </div>
 
         <div class="card">
