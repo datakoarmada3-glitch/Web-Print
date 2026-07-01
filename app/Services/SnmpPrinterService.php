@@ -35,7 +35,7 @@ class SnmpPrinterService
 
     private function runSnmp(string $host, string $oid): ?array
     {
-        $process = new Process(['snmpwalk', '-v2c', '-c', 'public', '-Oqv', '-t', '2', '-r', '1', $host, $oid]);
+        $process = new Process(['snmpwalk', '-v1', '-c', 'public', '-Oqv', '-t', '2', '-r', '1', $host, $oid]);
         $process->setTimeout(self::TIMEOUT_SECONDS);
         $process->run();
 
