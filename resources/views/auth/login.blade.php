@@ -10,8 +10,11 @@
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
         .login-wrap { width: 100%; max-width: 380px; padding: 20px; }
         .login-brand { text-align: center; margin-bottom: 32px; }
+        .login-logo { width: 88px; height: 88px; object-fit: contain; margin: 0 auto 12px; display: block; }
+        .login-fallback { width: 88px; height: 88px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; border-radius: 20px; background: #e0f2fe; color: #0369a1; font-size: 24px; font-weight: 800; }
         .login-brand h1 { font-size: 28px; font-weight: 700; color: #1a1a2e; }
         .login-brand p { color: #6b7280; font-size: 14px; margin-top: 4px; }
+        .hidden { display: none !important; }
         .login-card { background: #fff; border-radius: 12px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 12px rgba(0,0,0,.04); }
         .login-card h2 { font-size: 18px; font-weight: 600; margin-bottom: 24px; text-align: center; }
         .form-group { margin-bottom: 16px; }
@@ -30,7 +33,9 @@
 <body>
     <div class="login-wrap">
         <div class="login-brand">
-            <h1>🖨️ Web Printer</h1>
+            <img src="{{ asset('images/logo.png') }}" alt="Logo" class="login-logo" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')">
+            <div class="login-fallback hidden">WP</div>
+            <h1>Web Printer</h1>
             <p>Sistem Print Terpusat Kantor</p>
         </div>
         <div class="login-card">

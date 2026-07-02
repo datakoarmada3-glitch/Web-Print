@@ -47,6 +47,22 @@ class CupsService
         $this->runProcess(['cancel', $cupsJobId]);
     }
 
+    public function createOrUpdatePrinter(Printer $printer): void
+    {
+        $this->runProcess([
+            'lpadmin',
+            '-p', $printer->cups_name,
+            '-E',
+            '-v', $printer->connection_uri,
+            '-m', $printer->driver ?: 'everywhere',
+        ]);
+    }
+
+    public function deletePrinter(Printer $printer): void
+    {
+        $this->runProcess(['lpadmin', '-x', $printer->cups_name]);
+    }
+
     public function getPrinterStatus(Printer $printer): string
     {
         try {

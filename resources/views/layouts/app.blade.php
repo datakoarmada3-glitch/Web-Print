@@ -21,8 +21,15 @@
         /* Layout */
         .layout { display: flex; min-height: 100vh; }
         .sidebar { width: 240px; background: var(--sidebar-bg); color: var(--sidebar-text); position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 200; transition: transform .25s ease; }
-        .sidebar-brand { padding: 20px; font-size: 18px; font-weight: 700; color: #fff; border-bottom: 1px solid rgba(255,255,255,.08); display: flex; align-items: center; justify-content: space-between; }
+        .sidebar-brand { padding: 20px; font-size: 18px; font-weight: 700; color: #fff; border-bottom: 1px solid rgba(255,255,255,.08); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .brand-mark { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .brand-logo { width: 38px; height: 38px; object-fit: contain; flex-shrink: 0; border-radius: 8px; background: rgba(255,255,255,.08); padding: 4px; }
+        .brand-fallback { width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; background: rgba(255,255,255,.08); color: #fff; font-size: 14px; font-weight: 700; flex-shrink: 0; }
+        .brand-copy { min-width: 0; }
+        .brand-title { display: block; color: #fff; line-height: 1.2; }
+        .brand-subtitle { display: block; font-size: 11px; color: #94a3b8; font-weight: 500; margin-top: 2px; }
         .sidebar-close { display: none; background: none; border: none; color: #94a3b8; font-size: 24px; cursor: pointer; padding: 4px; }
+        .hidden { display: none !important; }
         .sidebar-nav { padding: 12px 0; }
         .sidebar-section { padding: 8px 20px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #475569; margin-top: 8px; }
         .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 20px; color: var(--sidebar-text); font-size: 13px; transition: all .15s; border-left: 3px solid transparent; }
@@ -205,7 +212,14 @@
         {{-- Sidebar --}}
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-brand">
-                <span>🖨️ Web Printer</span>
+                <div class="brand-mark">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="brand-logo" onerror="this.classList.add('hidden');this.nextElementSibling.classList.remove('hidden')">
+                    <span class="brand-fallback hidden">WP</span>
+                    <span class="brand-copy">
+                        <span class="brand-title">Web Printer</span>
+                        <span class="brand-subtitle">Print Terpusat</span>
+                    </span>
+                </div>
                 <button class="sidebar-close" onclick="closeSidebar()">×</button>
             </div>
             <nav class="sidebar-nav">

@@ -62,8 +62,11 @@ Route::middleware(['auth', 'active'])->group(function () {
 
         // Printers
         Route::get('/printers', [PrinterController::class, 'index'])->name('printers.index');
+        Route::get('/printers/create', [PrinterController::class, 'create'])->name('printers.create');
+        Route::post('/printers', [PrinterController::class, 'store'])->name('printers.store');
         Route::get('/printers/{printer}/edit', [PrinterController::class, 'edit'])->name('printers.edit');
         Route::put('/printers/{printer}', [PrinterController::class, 'update'])->name('printers.update');
+        Route::delete('/printers/{printer}', [PrinterController::class, 'destroy'])->name('printers.destroy');
         Route::post('/printers/{printer}/check-status', [PrinterController::class, 'checkStatus'])->name('printers.check-status');
         Route::get('/printers/{printer}/health', [PrinterController::class, 'health'])->name('printers.health');
 
