@@ -50,13 +50,14 @@ class PrintJobService
         return $printJob;
     }
 
-    public function confirmJob(PrintJob $printJob): void
+    public function confirmJob(PrintJob $printJob, ?string $pageRange = null): void
     {
         if ($printJob->status !== PrintJobStatus::Ready) {
             throw new \RuntimeException('Print job belum siap dikirim ke printer.');
         }
 
         $printJob->update([
+            'page_range' => $this->normalizePageRange($pageRange),
             'status' => PrintJobStatus::Waiting,
             'error_message' => null,
             'submitted_at' => now(),
@@ -137,6 +138,13 @@ class PrintJobService
         $this->log($printJob, PrintJobStatus::Ready->value, 'Preview PDF siap dikonfirmasi.');
 
         return $printJob->fresh(['printer', 'logs']);
+    }
+
+    private function normalizePageRange(?string $pageRange): ?string
+    {
+        $normalized = preg_replace('/\s+/', '', $pageRange ?? '');
+
+        return $normalized === '' ? null : $normalized;
     }
 
     private function resolvePrinter(mixed $printerId): Printer

@@ -69,8 +69,14 @@ class PrintJobController extends Controller
     {
         abort_unless($printJob->user_id === $request->user()->id || $request->user()->isAdmin(), 403);
 
+        $validated = $request->validate([
+            'page_range' => ['nullable', 'string', 'max:100', 'regex:/^[0-9,\-\s]+$/'],
+        ], [
+            'page_range.regex' => 'Format range halaman tidak valid. Contoh: 1-5 atau 1,3,5-10.',
+        ]);
+
         try {
-            $this->printJobService->confirmJob($printJob);
+            $this->printJobService->confirmJob($printJob, $validated['page_range'] ?? null);
 
             return redirect()
                 ->route('print-jobs.show', $printJob)

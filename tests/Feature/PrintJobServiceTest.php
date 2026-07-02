@@ -49,9 +49,11 @@ class PrintJobServiceTest extends TestCase
             'printer_id' => $printer->id,
         ]));
 
-        $service->confirmJob($printJob);
+        $service->confirmJob($printJob, '1 - 3, 5');
 
-        $this->assertSame(PrintJobStatus::Waiting, $printJob->fresh()->status);
+        $printJob->refresh();
+        $this->assertSame(PrintJobStatus::Waiting, $printJob->status);
+        $this->assertSame('1-3,5', $printJob->page_range);
         Queue::assertPushed(ProcessPrintJob::class);
     }
 
@@ -59,6 +61,7 @@ class PrintJobServiceTest extends TestCase
     {
         Queue::fake();
         $user = $this->createUser();
+        Printer::query()->update(['is_default' => false]);
         $defaultPrinter = Printer::create($this->printerData([
             'cups_name' => 'Canon-Default',
             'is_default' => true,

@@ -50,8 +50,12 @@
                 </div>
                 <div class="flex gap-2">
                     @if($printJob->status === \App\Enums\PrintJobStatus::Ready)
-                        <form method="POST" action="{{ route('print-jobs.confirm', $printJob) }}" onsubmit="return confirm('Kirim dokumen ini ke printer {{ $printJob->printer?->name ?? 'terpilih' }}?')" style="display:inline">
+                        <form method="POST" action="{{ route('print-jobs.confirm', $printJob) }}" onsubmit="return confirm('Kirim dokumen ini ke printer {{ $printJob->printer?->name ?? 'terpilih' }}?')" class="flex gap-2" style="align-items:flex-end;flex-wrap:wrap">
                             @csrf
+                            <div>
+                                <label for="page_range" style="display:block;font-size:12px;font-weight:600;margin-bottom:4px">Halaman</label>
+                                <input id="page_range" name="page_range" type="text" value="{{ old('page_range', $printJob->page_range) }}" placeholder="Semua / 1-3,5" style="max-width:160px">
+                            </div>
                             <button type="submit" class="btn btn-success btn-sm">🖨️ Kirim ke Printer</button>
                         </form>
                     @endif
