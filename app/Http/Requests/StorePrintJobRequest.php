@@ -24,6 +24,7 @@ class StorePrintJobRequest extends FormRequest
                 "max:{$maxSizeKb}",
                 "mimes:{$allowedMimes}",
             ],
+            'printer_id' => ['nullable', 'integer', Rule::exists('printers', 'id')],
             'copies' => ['required', 'integer', 'min:1', 'max:99'],
             'paper_size' => ['required', Rule::in(['A4', 'Legal', 'F4'])],
             'orientation' => ['required', Rule::in(['portrait', 'landscape'])],

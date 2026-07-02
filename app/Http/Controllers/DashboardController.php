@@ -11,7 +11,8 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        $recentJobs = PrintJob::where('user_id', $user->id)
+        $recentJobs = PrintJob::with('printer')
+            ->where('user_id', $user->id)
             ->latest('submitted_at')
             ->take(5)
             ->get();

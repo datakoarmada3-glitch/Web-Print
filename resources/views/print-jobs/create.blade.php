@@ -20,7 +20,23 @@
     <div class="card">
         <div class="card-header"><h3>Opsi Print</h3></div>
         <div class="card-body">
+            @if($printers->isEmpty())
+                <div class="alert alert-warning">⚠️ Belum ada printer tersedia. Hubungi admin untuk menambahkan printer.</div>
+            @endif
+
             <div class="form-grid">
+                <div class="form-group full">
+                    <label class="form-label">Pilih Printer</label>
+                    <select name="printer_id" class="form-select @error('printer_id') is-invalid @enderror" {{ $printers->isEmpty() ? 'disabled' : '' }}>
+                        @foreach($printers as $printer)
+                            <option value="{{ $printer->id }}" {{ (string) old('printer_id', $defaultPrinterId) === (string) $printer->id ? 'selected' : '' }}>
+                                {{ $printer->name }}{{ $printer->is_default ? ' — Default' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="form-hint">Nama printer bisa disesuaikan admin, misalnya Lantai 1, Lantai 2, atau area tertentu.</div>
+                    @error('printer_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
                 <div class="form-group">
                     <label class="form-label">Jumlah Copy</label>
                     <input type="number" name="copies" class="form-input @error('copies') is-invalid @enderror" min="1" max="99" value="{{ old('copies', 1) }}">
@@ -29,31 +45,31 @@
                 <div class="form-group">
                     <label class="form-label">Ukuran Kertas</label>
                     <select name="paper_size" class="form-select">
-                        <option value="A4">A4 (210 × 297 mm)</option>
-                        <option value="F4">F4 / Folio (215 × 330 mm)</option>
-                        <option value="Legal">Legal (216 × 356 mm)</option>
+                        <option value="A4" {{ old('paper_size') === 'A4' ? 'selected' : '' }}>A4 (210 × 297 mm)</option>
+                        <option value="F4" {{ old('paper_size') === 'F4' ? 'selected' : '' }}>F4 / Folio (215 × 330 mm)</option>
+                        <option value="Legal" {{ old('paper_size') === 'Legal' ? 'selected' : '' }}>Legal (216 × 356 mm)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Orientasi</label>
                     <select name="orientation" class="form-select">
-                        <option value="portrait">Portrait (tegak)</option>
-                        <option value="landscape">Landscape (miring)</option>
+                        <option value="portrait" {{ old('orientation') === 'portrait' ? 'selected' : '' }}>Portrait (tegak)</option>
+                        <option value="landscape" {{ old('orientation') === 'landscape' ? 'selected' : '' }}>Landscape (miring)</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Duplex</label>
                     <select name="duplex" class="form-select">
-                        <option value="none">Satu Sisi</option>
-                        <option value="long-edge">Dua Sisi – Tepi Panjang</option>
-                        <option value="short-edge">Dua Sisi – Tepi Pendek</option>
+                        <option value="none" {{ old('duplex') === 'none' ? 'selected' : '' }}>Satu Sisi</option>
+                        <option value="long-edge" {{ old('duplex') === 'long-edge' ? 'selected' : '' }}>Dua Sisi – Tepi Panjang</option>
+                        <option value="short-edge" {{ old('duplex') === 'short-edge' ? 'selected' : '' }}>Dua Sisi – Tepi Pendek</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Mode Warna</label>
                     <select name="color_mode" class="form-select">
-                        <option value="grayscale">Hitam Putih</option>
-                        <option value="color">Berwarna</option>
+                        <option value="grayscale" {{ old('color_mode') === 'grayscale' ? 'selected' : '' }}>Hitam Putih</option>
+                        <option value="color" {{ old('color_mode') === 'color' ? 'selected' : '' }}>Berwarna</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -65,7 +81,7 @@
         </div>
         <div class="card-footer" style="text-align:right">
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="margin-right:8px">Batal</a>
-            <button type="submit" class="btn btn-primary">🖨️ Kirim ke Antrean Print</button>
+            <button type="submit" class="btn btn-primary" {{ $printers->isEmpty() ? 'disabled' : '' }}>🖨️ Kirim ke Antrean Print</button>
         </div>
     </div>
 </form>

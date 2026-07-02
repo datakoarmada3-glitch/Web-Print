@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePrintJobRequest;
+use App\Models\Printer;
 use App\Models\PrintJob;
 use App\Services\PrintJobService;
 use Illuminate\Http\Request;
@@ -26,7 +27,12 @@ class PrintJobController extends Controller
 
     public function create()
     {
-        return view('print-jobs.create');
+        $printers = Printer::orderByDesc('is_default')
+            ->orderBy('name')
+            ->get();
+        $defaultPrinterId = $printers->firstWhere('is_default', true)?->id;
+
+        return view('print-jobs.create', compact('printers', 'defaultPrinterId'));
     }
 
     public function store(StorePrintJobRequest $request)

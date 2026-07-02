@@ -15,7 +15,8 @@
             <div class="card-body">
                 <div class="detail-grid">
                     <div class="detail-item"><label>User</label><div class="val">{{ $printJob->user->name }}</div></div>
-                    <div class="detail-item"><label>Printer</label><div class="val">{{ $printJob->printer->name }}</div></div>
+                    <div class="detail-item"><label>Printer</label><div class="val">{{ $printJob->printer?->name ?? '—' }}</div></div>
+                    <div class="detail-item"><label>Lokasi Printer</label><div class="val">{{ $printJob->printer?->location ?: '—' }}</div></div>
                     <div class="detail-item"><label>File</label><div class="val">{{ $printJob->original_filename }}</div></div>
                     <div class="detail-item"><label>Tipe</label><div class="val">{{ strtoupper($printJob->file_type) }}</div></div>
                     <div class="detail-item"><label>Ukuran</label><div class="val">{{ $printJob->fileSizeFormatted() }}</div></div>

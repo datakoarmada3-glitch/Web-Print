@@ -27,18 +27,19 @@
     <div class="desktop-table">
         <div class="table-wrap">
             <table>
-                <thead><tr><th>Kode</th><th>File</th><th>Status</th><th>Copy</th><th>Waktu</th></tr></thead>
+                <thead><tr><th>Kode</th><th>File</th><th>Printer</th><th>Status</th><th>Copy</th><th>Waktu</th></tr></thead>
                 <tbody>
                     @forelse($recentJobs as $job)
                         <tr>
                             <td><a href="{{ route('print-jobs.show', $job) }}">{{ $job->job_code }}</a></td>
                             <td>{{ Str::limit($job->original_filename, 35) }}</td>
+                            <td>{{ $job->printer?->name ?? '—' }}</td>
                             <td><span class="badge badge-{{ match($job->status->value) { 'waiting'=>'warning','processing','printing'=>'info','completed'=>'success','failed'=>'danger',default=>'secondary' } }}">{{ $job->status->label() }}</span></td>
                             <td>{{ $job->copies }}</td>
                             <td class="text-muted">{{ $job->submitted_at?->format('d/m/Y H:i') }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center text-muted" style="padding:32px">Belum ada print job. <a href="{{ route('print-jobs.create') }}">Print sekarang</a></td></tr>
+                        <tr><td colspan="6" class="text-center text-muted" style="padding:32px">Belum ada print job. <a href="{{ route('print-jobs.create') }}">Print sekarang</a></td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -54,7 +55,8 @@
                     <span class="badge badge-{{ match($job->status->value) { 'waiting'=>'warning','processing','printing'=>'info','completed'=>'success','failed'=>'danger',default=>'secondary' } }}">{{ $job->status->label() }}</span>
                 </div>
                 <div style="font-weight:500">{{ Str::limit($job->original_filename, 40) }}</div>
-                <div class="mobile-card-row" style="margin-top:4px"><span class="label">Copy</span><span>{{ $job->copies }}× · {{ $job->submitted_at?->format('d/m H:i') }}</span></div>
+                <div class="mobile-card-row" style="margin-top:4px"><span class="label">Printer</span><span>{{ $job->printer?->name ?? '—' }}</span></div>
+                <div class="mobile-card-row"><span class="label">Copy</span><span>{{ $job->copies }}× · {{ $job->submitted_at?->format('d/m H:i') }}</span></div>
             </a>
         @empty
             <div style="text-align:center;padding:32px;color:var(--muted)">Belum ada print job. <a href="{{ route('print-jobs.create') }}">Print sekarang</a></div>

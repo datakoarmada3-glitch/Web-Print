@@ -23,20 +23,21 @@
     <div class="desktop-table">
         <div class="table-wrap">
             <table>
-                <thead><tr><th>Kode</th><th>User</th><th>File</th><th>Tipe</th><th>Status</th><th>Waktu</th><th></th></tr></thead>
+                <thead><tr><th>Kode</th><th>User</th><th>File</th><th>Printer</th><th>Tipe</th><th>Status</th><th>Waktu</th><th></th></tr></thead>
                 <tbody>
                     @forelse($printJobs as $job)
                         <tr>
                             <td><code style="font-size:12px">{{ $job->job_code }}</code></td>
                             <td>{{ $job->user->name }}</td>
                             <td>{{ Str::limit($job->original_filename, 22) }}</td>
+                            <td>{{ $job->printer?->name ?? '—' }}</td>
                             <td>{{ strtoupper($job->file_type) }}</td>
                             <td><span class="badge badge-{{ match($job->status->value) { 'waiting'=>'warning','processing','printing'=>'info','completed'=>'success','failed'=>'danger',default=>'secondary' } }}">{{ $job->status->label() }}</span></td>
                             <td class="text-muted">{{ $job->submitted_at?->format('d/m/Y H:i') }}</td>
                             <td><a href="{{ route('admin.history.show', $job) }}" class="btn btn-ghost btn-sm">Detail</a></td>
                         </tr>
                     @empty
-                        <tr><td colspan="7" class="text-center text-muted" style="padding:24px">Tidak ada data.</td></tr>
+                        <tr><td colspan="8" class="text-center text-muted" style="padding:24px">Tidak ada data.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -52,6 +53,7 @@
                 </div>
                 <div style="font-weight:500;margin-bottom:6px">{{ Str::limit($job->original_filename, 40) }}</div>
                 <div class="mobile-card-row"><span class="label">User</span><span>{{ $job->user->name }}</span></div>
+                <div class="mobile-card-row"><span class="label">Printer</span><span>{{ $job->printer?->name ?? '—' }}</span></div>
                 <div class="mobile-card-row"><span class="label">Tipe</span><span>{{ strtoupper($job->file_type) }}</span></div>
                 <div class="mobile-card-row"><span class="label">Waktu</span><span>{{ $job->submitted_at?->format('d/m/Y H:i') }}</span></div>
             </a>

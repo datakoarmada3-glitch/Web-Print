@@ -19,7 +19,7 @@ class PrintJobService
     public function createJob(int $userId, UploadedFile $file, array $options): PrintJob
     {
         $upload = $this->fileUploadService->storeUploadedFile($file);
-        $printer = Printer::where('is_default', true)->firstOrFail();
+        $printer = $this->resolvePrinter($options['printer_id'] ?? null);
 
         return DB::transaction(function () use ($userId, $upload, $options, $printer) {
             $printJob = PrintJob::create([
@@ -59,6 +59,15 @@ class PrintJobService
         ]);
 
         $this->log($printJob, PrintJobStatus::Cancelled->value, 'Print job cancelled.');
+    }
+
+    private function resolvePrinter(mixed $printerId): Printer
+    {
+        if ($printerId) {
+            return Printer::findOrFail($printerId);
+        }
+
+        return Printer::where('is_default', true)->firstOrFail();
     }
 
     public function log(PrintJob $printJob, string $status, ?string $message = null, ?array $context = null): void

@@ -20,7 +20,8 @@
                     <div class="detail-item"><label>Tipe</label><div class="val">{{ strtoupper($printJob->file_type) }}</div></div>
                     <div class="detail-item"><label>Ukuran</label><div class="val">{{ $printJob->fileSizeFormatted() }}</div></div>
                     <div class="detail-item"><label>Halaman</label><div class="val">{{ $printJob->page_count ?? '—' }}</div></div>
-                    <div class="detail-item"><label>Printer</label><div class="val">{{ $printJob->printer->name }}</div></div>
+                    <div class="detail-item"><label>Printer</label><div class="val">{{ $printJob->printer?->name ?? '—' }}</div></div>
+                    <div class="detail-item"><label>Lokasi Printer</label><div class="val">{{ $printJob->printer?->location ?: '—' }}</div></div>
                     <div class="detail-item"><label>Copy</label><div class="val">{{ $printJob->copies }}×</div></div>
                     <div class="detail-item"><label>Kertas</label><div class="val">{{ $printJob->paper_size->value }}</div></div>
                     <div class="detail-item"><label>Orientasi</label><div class="val">{{ $printJob->orientation->label() }}</div></div>
