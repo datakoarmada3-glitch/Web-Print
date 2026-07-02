@@ -53,8 +53,8 @@ class ProcessPrintJob implements ShouldQueue
         );
 
         try {
-            // Convert to PDF if needed
-            if ($conversionService->needsConversion($this->printJob->file_type)) {
+            // Convert to PDF if needed and no preview PDF exists yet.
+            if (!$this->printJob->converted_pdf_path && $conversionService->needsConversion($this->printJob->file_type)) {
                 $convertedPath = $conversionService->convertToPdf(
                     $this->printJob->stored_original_path,
                     $this->printJob->file_type
@@ -71,7 +71,7 @@ class ProcessPrintJob implements ShouldQueue
 
             // Count pages
             $pdfPath = $this->printJob->getPdfPath();
-            $pageCount = $conversionService->getPageCount($pdfPath);
+            $pageCount = $this->printJob->page_count ?: $conversionService->getPageCount($pdfPath);
             if ($pageCount) {
                 $this->printJob->update(['page_count' => $pageCount]);
             }

@@ -39,4 +39,34 @@ class HistoryController extends Controller
 
         return view('admin.history.show', compact('printJob'));
     }
+
+    public function statuses()
+    {
+        $jobs = PrintJob::with('printer')
+            ->latest('submitted_at')
+            ->take(20)
+            ->get();
+
+        return response()->json($jobs->map(fn (PrintJob $printJob) => [
+            'id' => $printJob->id,
+            'status' => $printJob->status->value,
+            'label' => $printJob->status->label(),
+            'badge' => $this->badgeClass($printJob->status->value),
+            'isTerminal' => $printJob->status->isTerminal(),
+            'printerName' => $printJob->printer?->name,
+        ]));
+    }
+
+    private function badgeClass(string $status): string
+    {
+        return match ($status) {
+            'previewing', 'processing', 'printing' => 'info',
+            'ready' => 'primary',
+            'waiting' => 'warning',
+            'completed' => 'success',
+            'failed' => 'danger',
+            'cancelled' => 'secondary',
+            default => 'secondary',
+        };
+    }
 }

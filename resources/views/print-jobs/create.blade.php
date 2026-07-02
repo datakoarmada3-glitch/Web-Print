@@ -81,7 +81,7 @@
         </div>
         <div class="card-footer" style="text-align:right">
             <a href="{{ route('dashboard') }}" class="btn btn-ghost" style="margin-right:8px">Batal</a>
-            <button type="submit" class="btn btn-primary" {{ $printers->isEmpty() ? 'disabled' : '' }}>🖨️ Kirim ke Antrean Print</button>
+            <button type="submit" class="btn btn-primary" {{ $printers->isEmpty() ? 'disabled' : '' }}>👁️ Buat Preview</button>
         </div>
     </div>
 </form>

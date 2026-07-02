@@ -35,9 +35,12 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/print-jobs', [PrintJobController::class, 'index'])->name('print-jobs.index');
     Route::get('/print-jobs/create', [PrintJobController::class, 'create'])->name('print-jobs.create');
     Route::post('/print-jobs', [PrintJobController::class, 'store'])->name('print-jobs.store');
+    Route::get('/print-jobs/statuses', [PrintJobController::class, 'statuses'])->name('print-jobs.statuses');
     Route::get('/print-jobs/{printJob}', [PrintJobController::class, 'show'])->name('print-jobs.show');
+    Route::get('/print-jobs/{printJob}/status', [PrintJobController::class, 'status'])->name('print-jobs.status');
     Route::get('/print-jobs/{printJob}/preview', [PrintJobController::class, 'preview'])->name('print-jobs.preview');
     Route::get('/print-jobs/{printJob}/download', [PrintJobController::class, 'download'])->name('print-jobs.download');
+    Route::post('/print-jobs/{printJob}/confirm', [PrintJobController::class, 'confirm'])->name('print-jobs.confirm');
     Route::post('/print-jobs/{printJob}/cancel', [PrintJobController::class, 'cancel'])->name('print-jobs.cancel');
 
     // Admin routes
@@ -53,6 +56,7 @@ Route::middleware(['auth', 'active'])->group(function () {
 
         // History
         Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
+        Route::get('/history/statuses', [HistoryController::class, 'statuses'])->name('history.statuses');
         Route::get('/history/{printJob}', [HistoryController::class, 'show'])->name('history.show');
 
         // Users

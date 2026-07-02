@@ -4,6 +4,8 @@ namespace App\Enums;
 
 enum PrintJobStatus: string
 {
+    case Previewing = 'previewing';
+    case Ready = 'ready';
     case Waiting = 'waiting';
     case Processing = 'processing';
     case Printing = 'printing';
@@ -14,6 +16,8 @@ enum PrintJobStatus: string
     public function label(): string
     {
         return match ($this) {
+            self::Previewing => 'Membuat Preview',
+            self::Ready => 'Siap Print',
             self::Waiting => 'Menunggu',
             self::Processing => 'Memproses',
             self::Printing => 'Mencetak',
@@ -26,6 +30,8 @@ enum PrintJobStatus: string
     public function badgeClass(): string
     {
         return match ($this) {
+            self::Previewing => 'bg-info',
+            self::Ready => 'bg-primary',
             self::Waiting => 'bg-warning',
             self::Processing => 'bg-info',
             self::Printing => 'bg-primary',
@@ -42,6 +48,6 @@ enum PrintJobStatus: string
 
     public function isCancellable(): bool
     {
-        return in_array($this, [self::Waiting, self::Processing]);
+        return in_array($this, [self::Previewing, self::Ready, self::Waiting, self::Processing]);
     }
 }

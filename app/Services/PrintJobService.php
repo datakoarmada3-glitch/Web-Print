@@ -9,19 +9,89 @@ use App\Models\PrintJob;
 use App\Models\PrintJobLog;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class PrintJobService
 {
     public function __construct(
         private readonly FileUploadService $fileUploadService,
+        private readonly FileConversionService $conversionService,
     ) {}
+
+    public function createPreviewJob(int $userId, UploadedFile $file, array $options): PrintJob
+    {
+        $upload = $this->fileUploadService->storeUploadedFile($file);
+        $printer = $this->resolvePrinter($options['printer_id'] ?? null);
+        $printJob = $this->createStoredJob($userId, $upload, $options, $printer, PrintJobStatus::Previewing);
+
+        try {
+            return $this->preparePreview($printJob);
+        } catch (Throwable $exception) {
+            $printJob->update([
+                'status' => PrintJobStatus::Failed,
+                'error_message' => $exception->getMessage(),
+            ]);
+            $this->log($printJob, PrintJobStatus::Failed->value, 'Gagal membuat preview PDF.', [
+                'error' => $exception->getMessage(),
+            ]);
+
+            throw $exception;
+        }
+    }
 
     public function createJob(int $userId, UploadedFile $file, array $options): PrintJob
     {
         $upload = $this->fileUploadService->storeUploadedFile($file);
         $printer = $this->resolvePrinter($options['printer_id'] ?? null);
+        $printJob = $this->createStoredJob($userId, $upload, $options, $printer, PrintJobStatus::Waiting);
 
-        return DB::transaction(function () use ($userId, $upload, $options, $printer) {
+        ProcessPrintJob::dispatch($printJob)->onQueue('prints');
+
+        return $printJob;
+    }
+
+    public function confirmJob(PrintJob $printJob): void
+    {
+        if ($printJob->status !== PrintJobStatus::Ready) {
+            throw new \RuntimeException('Print job belum siap dikirim ke printer.');
+        }
+
+        $printJob->update([
+            'status' => PrintJobStatus::Waiting,
+            'error_message' => null,
+            'submitted_at' => now(),
+        ]);
+
+        $this->log($printJob, PrintJobStatus::Waiting->value, 'Print job confirmed and queued.');
+        ProcessPrintJob::dispatch($printJob)->onQueue('prints');
+    }
+
+    public function cancelJob(PrintJob $printJob): void
+    {
+        if (!$printJob->isCancellable()) {
+            throw new \RuntimeException('Print job tidak bisa dibatalkan.');
+        }
+
+        $printJob->update([
+            'status' => PrintJobStatus::Cancelled,
+            'cancelled_at' => now(),
+        ]);
+
+        $this->log($printJob, PrintJobStatus::Cancelled->value, 'Print job cancelled.');
+    }
+
+    /**
+     * @param array<string, mixed> $upload
+     * @param array<string, mixed> $options
+     */
+    private function createStoredJob(
+        int $userId,
+        array $upload,
+        array $options,
+        Printer $printer,
+        PrintJobStatus $status,
+    ): PrintJob {
+        return DB::transaction(function () use ($userId, $upload, $options, $printer, $status) {
             $printJob = PrintJob::create([
                 'job_code' => PrintJob::generateJobCode(),
                 'user_id' => $userId,
@@ -36,29 +106,37 @@ class PrintJobService
                 'duplex' => $options['duplex'],
                 'color_mode' => $options['color_mode'],
                 'page_range' => $options['page_range'] ?? null,
-                'status' => PrintJobStatus::Waiting,
+                'status' => $status,
                 'submitted_at' => now(),
             ]);
 
-            $this->log($printJob, PrintJobStatus::Waiting->value, 'Print job submitted.');
-            ProcessPrintJob::dispatch($printJob)->onQueue('prints');
+            $this->log($printJob, $status->value, $status === PrintJobStatus::Previewing
+                ? 'Print job uploaded for PDF preview.'
+                : 'Print job submitted.');
 
             return $printJob;
         });
     }
 
-    public function cancelJob(PrintJob $printJob): void
+    private function preparePreview(PrintJob $printJob): PrintJob
     {
-        if (!$printJob->isCancellable()) {
-            throw new \RuntimeException('Print job cannot be cancelled.');
+        $pdfPath = $printJob->stored_original_path;
+
+        if ($this->conversionService->needsConversion($printJob->file_type)) {
+            $pdfPath = $this->conversionService->convertToPdf($printJob->stored_original_path, $printJob->file_type);
+            $printJob->update(['converted_pdf_path' => $pdfPath]);
+            $this->log($printJob, PrintJobStatus::Previewing->value, 'File converted to PDF preview.');
         }
 
+        $pageCount = $this->conversionService->getPageCount($pdfPath);
         $printJob->update([
-            'status' => PrintJobStatus::Cancelled,
-            'cancelled_at' => now(),
+            'page_count' => $pageCount,
+            'status' => PrintJobStatus::Ready,
         ]);
 
-        $this->log($printJob, PrintJobStatus::Cancelled->value, 'Print job cancelled.');
+        $this->log($printJob, PrintJobStatus::Ready->value, 'Preview PDF siap dikonfirmasi.');
+
+        return $printJob->fresh(['printer', 'logs']);
     }
 
     private function resolvePrinter(mixed $printerId): Printer

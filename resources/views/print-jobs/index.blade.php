@@ -29,7 +29,7 @@
                         <tr>
                             <td><code style="font-size:12px">{{ $job->job_code }}</code></td>
                             <td>{{ Str::limit($job->original_filename, 30) }}</td>
-                            <td><span class="badge badge-{{ match($job->status->value) { 'waiting'=>'warning','processing','printing'=>'info','completed'=>'success','failed'=>'danger',default=>'secondary' } }}">{{ $job->status->label() }}</span></td>
+                            <td><span class="badge badge-{{ match($job->status->value) { 'previewing','processing','printing'=>'info','ready'=>'primary','waiting'=>'warning','completed'=>'success','failed'=>'danger',default=>'secondary' } }}" data-job-status data-job-id="{{ $job->id }}">{{ $job->status->label() }}</span></td>
                             <td>{{ $job->printer?->name ?? '—' }}</td>
                             <td>{{ $job->paper_size->value }}</td>
                             <td>{{ $job->copies }}</td>
@@ -50,7 +50,7 @@
             <a href="{{ route('print-jobs.show', $job) }}" class="mobile-card" style="display:block;text-decoration:none;color:inherit">
                 <div class="mobile-card-header">
                     <code style="font-size:11px;color:var(--muted)">{{ $job->job_code }}</code>
-                    <span class="badge badge-{{ match($job->status->value) { 'waiting'=>'warning','processing','printing'=>'info','completed'=>'success','failed'=>'danger',default=>'secondary' } }}">{{ $job->status->label() }}</span>
+                    <span class="badge badge-{{ match($job->status->value) { 'previewing','processing','printing'=>'info','ready'=>'primary','waiting'=>'warning','completed'=>'success','failed'=>'danger',default=>'secondary' } }}" data-job-status data-job-id="{{ $job->id }}">{{ $job->status->label() }}</span>
                 </div>
                 <div style="font-weight:500;margin-bottom:6px">{{ Str::limit($job->original_filename, 40) }}</div>
                 <div class="mobile-card-row"><span class="label">Printer</span><span>{{ $job->printer?->name ?? '—' }}</span></div>
@@ -66,4 +66,40 @@
         <div class="card-footer">{{ $printJobs->links() }}</div>
     @endif
 </div>
+@push('scripts')
+<script>
+(() => {
+    const badges = [...document.querySelectorAll('[data-job-status]')];
+    if (!badges.length) return;
+
+    const terminal = new Set(['completed', 'failed', 'cancelled']);
+    const statusUrl = @json(route('print-jobs.statuses'));
+
+    async function poll() {
+        const response = await fetch(statusUrl, { headers: { 'Accept': 'application/json' } });
+        if (!response.ok) return;
+
+        const jobs = await response.json();
+        let hasActive = false;
+
+        jobs.forEach(job => {
+            const nodes = document.querySelectorAll(`[data-job-id="${job.id}"]`);
+            nodes.forEach(node => {
+                node.textContent = job.label;
+                node.className = `badge badge-${job.badge}`;
+            });
+            if (!terminal.has(job.status)) {
+                hasActive = true;
+            }
+        });
+
+        if (hasActive) {
+            window.setTimeout(poll, 10000);
+        }
+    }
+
+    window.setTimeout(poll, 10000);
+})();
+</script>
+@endpush
 @endsection

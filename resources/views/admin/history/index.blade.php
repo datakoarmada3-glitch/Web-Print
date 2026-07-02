@@ -9,7 +9,7 @@
             <input type="text" name="search" class="form-input" style="width:200px" placeholder="Cari kode/file..." value="{{ request('search') }}">
             <select name="status" class="form-select" style="width:140px">
                 <option value="">Semua Status</option>
-                @foreach(['waiting','processing','printing','completed','failed','cancelled'] as $s)
+                @foreach(['previewing','ready','waiting','processing','printing','completed','failed','cancelled'] as $s)
                     <option value="{{ $s }}" {{ request('status')===$s?'selected':'' }}>{{ ucfirst($s) }}</option>
                 @endforeach
             </select>
@@ -32,7 +32,7 @@
                             <td>{{ Str::limit($job->original_filename, 22) }}</td>
                             <td>{{ $job->printer?->name ?? '—' }}</td>
                             <td>{{ strtoupper($job->file_type) }}</td>
-                            <td><span class="badge badge-{{ match($job->status->value) { 'waiting'=>'warning','processing','printing'=>'info','completed'=>'success','failed'=>'danger',default=>'secondary' } }}">{{ $job->status->label() }}</span></td>
+                            <td><span class="badge badge-{{ match($job->status->value) { 'previewing','processing','printing'=>'info','ready'=>'primary','waiting'=>'warning','completed'=>'success','failed'=>'danger',default=>'secondary' } }}" data-job-status data-job-id="{{ $job->id }}">{{ $job->status->label() }}</span></td>
                             <td class="text-muted">{{ $job->submitted_at?->format('d/m/Y H:i') }}</td>
                             <td><a href="{{ route('admin.history.show', $job) }}" class="btn btn-ghost btn-sm">Detail</a></td>
                         </tr>
@@ -49,7 +49,7 @@
             <a href="{{ route('admin.history.show', $job) }}" class="mobile-card" style="display:block;text-decoration:none;color:inherit">
                 <div class="mobile-card-header">
                     <code style="font-size:11px;color:var(--muted)">{{ $job->job_code }}</code>
-                    <span class="badge badge-{{ match($job->status->value) { 'waiting'=>'warning','processing','printing'=>'info','completed'=>'success','failed'=>'danger',default=>'secondary' } }}">{{ $job->status->label() }}</span>
+                    <span class="badge badge-{{ match($job->status->value) { 'previewing','processing','printing'=>'info','ready'=>'primary','waiting'=>'warning','completed'=>'success','failed'=>'danger',default=>'secondary' } }}" data-job-status data-job-id="{{ $job->id }}">{{ $job->status->label() }}</span>
                 </div>
                 <div style="font-weight:500;margin-bottom:6px">{{ Str::limit($job->original_filename, 40) }}</div>
                 <div class="mobile-card-row"><span class="label">User</span><span>{{ $job->user->name }}</span></div>
@@ -64,4 +64,40 @@
 
     @if($printJobs->hasPages())<div class="card-footer">{{ $printJobs->links() }}</div>@endif
 </div>
+@push('scripts')
+<script>
+(() => {
+    const badges = [...document.querySelectorAll('[data-job-status]')];
+    if (!badges.length) return;
+
+    const terminal = new Set(['completed', 'failed', 'cancelled']);
+    const statusUrl = @json(route('admin.history.statuses'));
+
+    async function poll() {
+        const response = await fetch(statusUrl, { headers: { 'Accept': 'application/json' } });
+        if (!response.ok) return;
+
+        const jobs = await response.json();
+        let hasActive = false;
+
+        jobs.forEach(job => {
+            const nodes = document.querySelectorAll(`[data-job-id="${job.id}"]`);
+            nodes.forEach(node => {
+                node.textContent = job.label;
+                node.className = `badge badge-${job.badge}`;
+            });
+            if (!terminal.has(job.status)) {
+                hasActive = true;
+            }
+        });
+
+        if (hasActive) {
+            window.setTimeout(poll, 10000);
+        }
+    }
+
+    window.setTimeout(poll, 10000);
+})();
+</script>
+@endpush
 @endsection
