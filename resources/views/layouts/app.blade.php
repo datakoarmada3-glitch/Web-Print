@@ -155,6 +155,11 @@
         .mb-3 { margin-bottom: 12px; }
         .d-inline { display: inline; }
         .row-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .print-job-layout { display: grid; grid-template-columns: minmax(360px, 0.9fr) minmax(520px, 1.1fr); gap: 16px; align-items: start; }
+        .preview-card { position: sticky; top: 72px; }
+        .preview-frame { width: 100%; height: calc(100vh - 220px); min-height: 560px; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
+        .print-actions { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: end; }
+        .compact-log { max-height: 220px; overflow-y: auto; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -173,6 +178,10 @@
             .stat-value { font-size: 22px; }
 
             .row-cards { grid-template-columns: 1fr; }
+            .print-job-layout { grid-template-columns: 1fr; }
+            .preview-card { position: static; }
+            .preview-frame { height: 520px; min-height: 420px; }
+            .print-actions { grid-template-columns: 1fr; }
             .form-grid { grid-template-columns: 1fr; }
             .detail-grid { grid-template-columns: 1fr 1fr; }
 

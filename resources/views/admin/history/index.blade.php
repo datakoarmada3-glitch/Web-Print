@@ -70,7 +70,6 @@
     const badges = [...document.querySelectorAll('[data-job-status]')];
     if (!badges.length) return;
 
-    const terminal = new Set(['completed', 'failed', 'cancelled']);
     const statusUrl = @json(route('admin.history.statuses'));
 
     async function poll() {
@@ -78,25 +77,17 @@
         if (!response.ok) return;
 
         const jobs = await response.json();
-        let hasActive = false;
-
         jobs.forEach(job => {
             const nodes = document.querySelectorAll(`[data-job-id="${job.id}"]`);
             nodes.forEach(node => {
                 node.textContent = job.label;
                 node.className = `badge badge-${job.badge}`;
             });
-            if (!terminal.has(job.status)) {
-                hasActive = true;
-            }
         });
-
-        if (hasActive) {
-            window.setTimeout(poll, 10000);
-        }
     }
 
-    window.setTimeout(poll, 10000);
+    poll();
+    window.setInterval(poll, 5000);
 })();
 </script>
 @endpush
