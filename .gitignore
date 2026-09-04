@@ -27,3 +27,6 @@ storage/app/print-jobs/
 /storage/framework/sessions/*
 *.sql
 *.bak
+/bootstrap/cache/*
+!bootstrap/cache/.gitignore
+.superdesign/
