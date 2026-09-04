@@ -19,4 +19,11 @@ yarn-error.log
 /.vscode
 /.omc
 storage/app/print-jobs/
-composer.lock
+/storage/app/private/print-jobs/
+/storage/app/print-jobs/
+/storage/logs/*
+/storage/framework/views/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+*.sql
+*.bak
