@@ -33,44 +33,50 @@ class MonitorPrintStatus extends Command
 
     private function checkJobStatus(PrintJob $job, PrintJobService $printJobService): void
     {
+        if (! $job->printer) {
+            $printJobService->log($job, PrintJobStatus::Printing->value, 'CUPS verify pending: printer relation missing.', ['cups_job_id' => $job->cups_job_id]);
+            return;
+        }
         $cupsName = $job->printer->cups_name;
-        $process = new Process(['lpstat', '-W', 'not-completed', '-o', $cupsName]);
+        $notCompleted = $this->runLpstat(['lpstat', '-W', 'not-completed', '-o', $cupsName]);
+        if ($notCompleted === null) {
+            $printJobService->log($job, PrintJobStatus::Printing->value, 'Failed to poll CUPS status.', ['error' => 'lpstat not-completed failed']);
+            $this->error("Failed to poll status for {$job->job_code}");
+            return;
+        }
+        $jobNumber = $this->jobNumber($job->cups_job_id);
+        if (str_contains($notCompleted, $job->cups_job_id) || ($jobNumber && str_contains($notCompleted, $jobNumber))) {
+            return;
+        }
+        $completed = $this->runLpstat(['lpstat', '-W', 'completed', '-o', $cupsName]);
+        if ($completed === null) {
+            $printJobService->log($job, PrintJobStatus::Printing->value, 'CUPS verify pending: completed history unavailable.', ['cups_job_id' => $job->cups_job_id]);
+            return;
+        }
+        if (str_contains($completed, $job->cups_job_id) || ($jobNumber && str_contains($completed, $jobNumber))) {
+            $job->update(['status' => PrintJobStatus::Completed, 'completed_at' => now()]);
+            $printJobService->log($job, PrintJobStatus::Completed->value, 'Print job completed successfully.', ['cups_job_id' => $job->cups_job_id]);
+            $this->line("Job {$job->job_code} completed.");
+            return;
+        }
+        $printJobService->log($job, PrintJobStatus::Printing->value, 'CUPS verify pending: job not in completed history yet.', ['cups_job_id' => $job->cups_job_id]);
+    }
+
+    private function runLpstat(array $args): ?string
+    {
+        $process = new Process($args);
         $process->setTimeout(15);
-
         $cupsServer = env('CUPS_SERVER');
-        if ($cupsServer) {
-            $process->setEnv(['CUPS_SERVER' => $cupsServer]);
-        }
-
+        if ($cupsServer) { $process->setEnv(['CUPS_SERVER' => $cupsServer]); }
         $process->run();
+        if (! $process->isSuccessful()) { return null; }
+        return $process->getOutput();
+    }
 
-        if (!$process->isSuccessful()) {
-            $errorOutput = trim($process->getErrorOutput()) ?: 'lpstat status check failed.';
-            $printJobService->log(
-                $job,
-                PrintJobStatus::Printing->value,
-                'Failed to poll CUPS status.',
-                ['error' => $errorOutput]
-            );
-            $this->error("Failed to poll status for {$job->job_code}: {$errorOutput}");
-
-            return;
-        }
-
-        $notCompleted = $process->getOutput();
-        $jobIdParts = explode('-', $job->cups_job_id);
-        $jobNumber = end($jobIdParts);
-
-        if (str_contains($notCompleted, $job->cups_job_id) || str_contains($notCompleted, $jobNumber)) {
-            return;
-        }
-
-        $job->update([
-            'status' => PrintJobStatus::Completed,
-            'completed_at' => now(),
-        ]);
-
-        $printJobService->log($job, PrintJobStatus::Completed->value, 'Print job completed successfully.');
-        $this->line("Job {$job->job_code} completed.");
+    private function jobNumber(string $cupsJobId): ?string
+    {
+        $parts = explode('-', $cupsJobId);
+        $n = end($parts);
+        return $n !== false && $n !== '' ? $n : null;
     }
 }

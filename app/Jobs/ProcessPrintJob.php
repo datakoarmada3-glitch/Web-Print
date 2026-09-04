@@ -21,6 +21,7 @@ class ProcessPrintJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 3;
+    public int $backoff = 10;
     public int $timeout = 180;
 
     public function __construct(

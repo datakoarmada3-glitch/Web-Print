@@ -134,6 +134,7 @@
     let lastStatus = @json($printJob->status->value);
 
     async function pollStatus() {
+        if (document.querySelector('form[data-submitting="true"]')) return;
         const response = await fetch(statusUrl, { headers: { 'Accept': 'application/json' } });
         if (!response.ok) return;
 
@@ -149,8 +150,9 @@
         lastStatus = data.status;
     }
 
+    document.querySelectorAll('form').forEach(f => f.addEventListener('submit', () => f.dataset.submitting = 'true'));
     pollStatus();
-    window.setInterval(pollStatus, 5000);
+    window.setInterval(pollStatus, 10000);
 })();
 </script>
 @endpush

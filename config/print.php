@@ -39,7 +39,7 @@ return [
     | File Retention
     |--------------------------------------------------------------------------
     */
-    'file_retention_days' => (int) env('FILE_RETENTION_DAYS', 30),
+    'file_retention_days' => (int) env('FILE_RETENTION_DAYS', 7),
 
     /*
     |--------------------------------------------------------------------------

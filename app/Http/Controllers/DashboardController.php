@@ -30,6 +30,12 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
+        $stats['queue_ahead'] = PrintJob::whereIn('status', ['waiting', 'processing', 'printing'])
+            ->where('submitted_at', '<', now())
+            ->count();
+        // Conservative guidance only; actual print time depends on file size and printer condition.
+        $stats['estimated_wait_minutes'] = (int) ceil($stats['queue_ahead'] * 1.5);
+
         return view('dashboard', compact('recentJobs', 'stats'));
     }
 }

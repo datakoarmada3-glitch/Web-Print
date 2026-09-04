@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\HistoryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PrinterController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -23,7 +24,7 @@ Route::get('/', fn () => redirect()->route('dashboard'));
 // Guest routes
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 });
 
 // Authenticated routes
@@ -34,7 +35,7 @@ Route::middleware(['auth', 'active'])->group(function () {
     // Print Jobs
     Route::get('/print-jobs', [PrintJobController::class, 'index'])->name('print-jobs.index');
     Route::get('/print-jobs/create', [PrintJobController::class, 'create'])->name('print-jobs.create');
-    Route::post('/print-jobs', [PrintJobController::class, 'store'])->name('print-jobs.store');
+    Route::post('/print-jobs', [PrintJobController::class, 'store'])->middleware('throttle:10,1')->name('print-jobs.store');
     Route::get('/print-jobs/statuses', [PrintJobController::class, 'statuses'])->name('print-jobs.statuses');
     Route::get('/print-jobs/{printJob}', [PrintJobController::class, 'show'])->name('print-jobs.show');
     Route::get('/print-jobs/{printJob}/status', [PrintJobController::class, 'status'])->name('print-jobs.status');
@@ -73,6 +74,9 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::delete('/printers/{printer}', [PrinterController::class, 'destroy'])->name('printers.destroy');
         Route::post('/printers/{printer}/check-status', [PrinterController::class, 'checkStatus'])->name('printers.check-status');
         Route::get('/printers/{printer}/health', [PrinterController::class, 'health'])->name('printers.health');
+
+        // Reports
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 
         // Settings
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');

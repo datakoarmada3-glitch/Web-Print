@@ -29,8 +29,8 @@
                     <label class="form-label">Pilih Printer</label>
                     <select name="printer_id" class="form-select @error('printer_id') is-invalid @enderror" {{ $printers->isEmpty() ? 'disabled' : '' }}>
                         @foreach($printers as $printer)
-                            <option value="{{ $printer->id }}" {{ (string) old('printer_id', $defaultPrinterId) === (string) $printer->id ? 'selected' : '' }}>
-                                {{ $printer->name }}{{ $printer->is_default ? ' — Default' : '' }}
+                            <option value="{{ $printer->id }}" data-status="{{ $printer->status->value ?? $printer->status }}" {{ (string) old('printer_id', $defaultPrinterId) === (string) $printer->id ? 'selected' : '' }}>
+                                {{ $printer->name }}{{ $printer->is_default ? ' — Default' : '' }} — {{ strtoupper($printer->status->value ?? $printer->status) }}
                             </option>
                         @endforeach
                     </select>

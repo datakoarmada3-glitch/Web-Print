@@ -75,6 +75,7 @@
     const statusUrl = @json(route('print-jobs.statuses'));
 
     async function poll() {
+        if (document.querySelector('form[data-submitting="true"]')) return;
         const response = await fetch(statusUrl, { headers: { 'Accept': 'application/json' } });
         if (!response.ok) return;
 
@@ -89,7 +90,7 @@
     }
 
     poll();
-    window.setInterval(poll, 5000);
+    window.setInterval(poll, 10000);
 })();
 </script>
 @endpush

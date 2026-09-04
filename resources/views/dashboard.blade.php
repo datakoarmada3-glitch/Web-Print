@@ -15,6 +15,10 @@
         <div class="stat-label">Dalam Antrean</div>
         <div class="stat-value {{ $stats['pending'] > 0 ? 'muted' : 'green' }}">{{ $stats['pending'] }}</div>
     </div>
+    <div class="stat-card">
+        <div class="stat-label">Estimasi Tunggu</div>
+        <div class="stat-value blue">{{ $stats['estimated_wait_minutes'] }} <small>menit</small></div>
+    </div>
 </div>
 
 <div class="card">

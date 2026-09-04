@@ -8,7 +8,7 @@ use Symfony\Component\Process\Process;
 
 class FileConversionService
 {
-    private const PROCESS_TIMEOUT = 120;
+    private const PROCESS_TIMEOUT = 180;
 
     private array $officeExtensions = ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'];
     private array $imageExtensions = ['jpg', 'jpeg', 'png'];
@@ -24,7 +24,7 @@ class FileConversionService
         $ext = strtolower($fileType);
         $absolutePath = Storage::disk('local')->path($storagePath);
 
-        if (!file_exists($absolutePath)) {
+        if (! file_exists($absolutePath)) {
             throw new RuntimeException("Source file not found: {$storagePath}");
         }
 
@@ -43,7 +43,7 @@ class FileConversionService
     {
         $absolutePath = Storage::disk('local')->path($pdfStoragePath);
 
-        if (!file_exists($absolutePath)) {
+        if (! file_exists($absolutePath)) {
             return null;
         }
 
@@ -52,7 +52,7 @@ class FileConversionService
         $process->setTimeout(30);
         $process->run();
 
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             return null;
         }
 
@@ -68,37 +68,60 @@ class FileConversionService
     {
         $outputDir = dirname($absolutePath);
         $libreOfficeBin = config('print.libreoffice_bin', '/usr/bin/libreoffice');
+        $profileDir = storage_path('framework/cache/lo_profile');
+
+        if (! is_dir($profileDir)) {
+            @mkdir($profileDir, 0755, true);
+        }
+
+        $profileUri = 'file://' . $profileDir;
 
         $process = new Process([
             $libreOfficeBin,
+            "-env:UserInstallation={$profileUri}",
             '--headless',
             '--nologo',
             '--nofirststartwizard',
-            '--convert-to', 'pdf',
+            '--convert-to', 'pdf:writer_pdf_Export:{"SelectPdfVersion":{"type":"long","value":"1"},"EmbedStandardFonts":{"type":"boolean","value":"true"}}',
             '--outdir', $outputDir,
             $absolutePath,
         ]);
 
         $process->setTimeout(self::PROCESS_TIMEOUT);
-        $process->setEnv(['HOME' => '/tmp']);
+        $process->setEnv(['HOME' => $profileDir]);
         $process->run();
 
-        if (!$process->isSuccessful()) {
-            throw new RuntimeException(
-                'LibreOffice conversion failed: ' . trim($process->getErrorOutput())
-            );
+        if (! $process->isSuccessful()) {
+            // Fallback to basic pdf conversion if filter args fail
+            $fallbackProcess = new Process([
+                $libreOfficeBin,
+                "-env:UserInstallation={$profileUri}",
+                '--headless',
+                '--nologo',
+                '--nofirststartwizard',
+                '--convert-to', 'pdf',
+                '--outdir', $outputDir,
+                $absolutePath,
+            ]);
+            $fallbackProcess->setTimeout(self::PROCESS_TIMEOUT);
+            $fallbackProcess->setEnv(['HOME' => $profileDir]);
+            $fallbackProcess->run();
+
+            if (! $fallbackProcess->isSuccessful()) {
+                throw new RuntimeException(
+                    'LibreOffice conversion failed: ' . trim($fallbackProcess->getErrorOutput() ?: $process->getErrorOutput())
+                );
+            }
         }
 
         $pdfFilename = pathinfo($absolutePath, PATHINFO_FILENAME) . '.pdf';
         $pdfAbsolutePath = $outputDir . '/' . $pdfFilename;
 
-        if (!file_exists($pdfAbsolutePath)) {
+        if (! file_exists($pdfAbsolutePath)) {
             throw new RuntimeException('Converted PDF file not found after LibreOffice conversion.');
         }
 
-        $pdfStoragePath = dirname($storagePath) . '/' . $pdfFilename;
-
-        return $pdfStoragePath;
+        return dirname($storagePath) . '/' . $pdfFilename;
     }
 
     private function convertImage(string $absolutePath, string $storagePath): string
@@ -109,7 +132,6 @@ class FileConversionService
 
         $img2pdfBin = config('print.img2pdf_bin', '/usr/bin/img2pdf');
 
-        // Try img2pdf first (lightweight, preserves image quality)
         if (file_exists($img2pdfBin)) {
             $process = new Process([
                 $img2pdfBin,
@@ -127,11 +149,10 @@ class FileConversionService
             }
         }
 
-        // Fallback: ImageMagick convert
         $process = new Process([
             'convert',
             $absolutePath,
-            '-resize', '595x842>', // A4 at 72dpi
+            '-resize', '595x842>',
             '-gravity', 'center',
             '-extent', '595x842',
             '-units', 'PixelsPerInch',
@@ -142,13 +163,13 @@ class FileConversionService
         $process->setTimeout(self::PROCESS_TIMEOUT);
         $process->run();
 
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             throw new RuntimeException(
                 'Image to PDF conversion failed: ' . trim($process->getErrorOutput())
             );
         }
 
-        if (!file_exists($pdfAbsolutePath)) {
+        if (! file_exists($pdfAbsolutePath)) {
             throw new RuntimeException('PDF file not found after image conversion.');
         }
 

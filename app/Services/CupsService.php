@@ -23,6 +23,7 @@ class CupsService
             '-o', 'orientation-requested=' . $printJob->orientation->cupsCode(),
             '-o', 'sides=' . $printJob->duplex->cupsSides(),
             '-o', 'ColorModel=' . $printJob->color_mode->cupsColorModel(),
+            '-o', 'fit-to-page=false',
         ];
 
         if ($printJob->page_range) {
